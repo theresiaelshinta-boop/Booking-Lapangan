@@ -1,0 +1,193 @@
+/* =======================================================
+   TRINITY SPORT CENTER - CUSTOM CSS
+   ======================================================= */
+
+/* Import Font Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap');
+
+:root {
+    --neon-pink: #e91e63;
+    --neon-cyan: #00f2ff;
+    --dark-bg: #000000;
+    --glass-bg: rgba(20, 20, 20, 0.95);
+}
+
+body { 
+    background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)), 
+                url('https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop'); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white; 
+    font-family: 'Montserrat', sans-serif; 
+    min-height: 100vh;
+}
+
+/* --- SIDEBAR STYLE --- */
+.sidebar-public {
+    min-height: 100vh;
+    background: rgba(10, 10, 10, 0.98);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    position: fixed;
+    z-index: 1000;
+}
+
+.nav-link-custom {
+    color: rgba(255, 255, 255, 0.6);
+    padding: 12px 25px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 0 50px 50px 0;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.nav-link-custom i {
+    font-size: 1.2rem;
+    margin-right: 15px;
+}
+
+.nav-link-custom:hover, .nav-link-custom.active {
+    background: linear-gradient(90deg, rgba(233, 30, 99, 0.2) 0%, transparent 100%);
+    color: var(--neon-pink);
+    border-left: 4px solid var(--neon-pink);
+}
+
+/* --- HERO SECTION --- */
+.hero-wrapper {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.85)), 
+                url('../images/hero-bg.jpg'); /* Ganti dengan path gambar Anda */
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-logo-main {
+    max-width: 250px;
+    filter: drop-shadow(0 0 15px rgba(233, 30, 99, 0.5));
+}
+
+.hero-title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    letter-spacing: 4px;
+}
+
+/* --- FORM & INPUT STYLE (PERBAIKAN TULISAN PUTIH) --- */
+.form-control-custom {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+/* Memastikan teks dropdown (select) dan pilihannya berwarna putih */
+select.form-control-custom, 
+.form-select.form-control-custom {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+.form-control-custom option {
+    background-color: #1a1a1a; /* Background saat dropdown dibuka */
+    color: #ffffff;
+}
+
+.form-control-custom:focus {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--neon-pink) !important;
+    box-shadow: 0 0 10px rgba(233, 30, 99, 0.3);
+    color: #ffffff !important;
+}
+
+/* Ikon Kalender Putih */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* --- JADWAL BOOKING SLOTS --- */
+.time-slot {
+    padding: 15px 5px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s ease;
+}
+
+.slot-available {
+    background: rgba(0, 242, 255, 0.05);
+    color: var(--neon-cyan);
+    border-color: var(--neon-cyan);
+}
+
+.slot-booked {
+    background: rgba(233, 30, 99, 0.05);
+    color: var(--neon-pink);
+    border-color: var(--neon-pink);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- BUTTON NEON --- */
+.btn-neon-pink {
+    background: var(--neon-pink);
+    color: #fff;
+    border: none;
+    padding: 12px 35px;
+    font-weight: 700;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.btn-neon-pink:hover {
+    box-shadow: 0 0 20px rgba(233, 30, 99, 0.6);
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.btn-outline-cyan {
+    border: 2px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    background: transparent;
+    padding: 12px 35px;
+    font-weight: 700;
+    border-radius: 5px;
+}
+
+.btn-outline-cyan:hover {
+    background: var(--neon-cyan);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+}
+
+/* --- MODAL LOGIN --- */
+.modal-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar-public {
+        position: relative;
+        min-height: auto;
+        width: 100%;
+    }
+    .hero-wrapper {
+        height: auto;
+        padding: 100px 20px;
+    }
+}
