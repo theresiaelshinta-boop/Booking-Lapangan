@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 29, 2026 at 09:11 AM
+-- Generation Time: Jan 30, 2026 at 12:50 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -71,7 +71,7 @@ CREATE TABLE `lapangan` (
 --
 
 INSERT INTO `lapangan` (`id_lapangan`, `nama_lapangan`, `jenis`, `harga_per_jam`, `foto`) VALUES
-(1, 'Lapangan Futsal A', 'futsal', 150000, 'lapangan_futsalA.jpg'),
+(1, 'Lapangan Futsal A', 'futsal', 150000, '1769773520_lapangan_1768971686.jpg'),
 (2, 'Lapangan Futsal B', 'futsal', 150000, 'lapangan_1768973806.jpg'),
 (3, 'Lapangan Badminton 1', 'badminton', 50000, 'lapangan_1768973901.jpg'),
 (4, 'Lapangan Badminton 2', 'badminton', 50000, 'lapangan_1768973909.jpg');
@@ -143,7 +143,7 @@ ALTER TABLE `booking`
 -- AUTO_INCREMENT for table `lapangan`
 --
 ALTER TABLE `lapangan`
-  MODIFY `id_lapangan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_lapangan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `users`
