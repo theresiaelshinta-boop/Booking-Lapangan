@@ -3,8 +3,8 @@ session_start();
 require '../config/database.php';
 
 // 1. PROTEKSI ADMIN
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../index.php");
+if (!isset($_SESSION['id_admin']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login_admin.php");
     exit;
 }
 
@@ -115,8 +115,8 @@ $res_pending = mysqli_fetch_assoc($q_pending);
             <i class="bi bi-file-earmark-bar-graph-fill me-3"></i> Laporan
         </a>
         <hr class="border-secondary my-4">
-        <a href="../logout.php" class="nav-link text-danger">
-            <i class="bi bi-box-arrow-left me-3"></i> Logout
+        <a href="logout_admin.php" class="nav-link text-danger">
+        <i class="bi bi-box-arrow-left me-3"></i> Logout
         </a>
     </div>
 </div>

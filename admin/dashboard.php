@@ -3,8 +3,8 @@ session_start();
 require '../config/database.php';
 
 // 1. PROTEKSI ADMIN
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../index.php");
+if (!isset($_SESSION['id_admin']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login_admin.php");
     exit;
 }
 
@@ -87,7 +87,6 @@ for ($i = 6; $i >= 0; $i--) {
         .table-card, .chart-card { background: #111; border-radius: 20px; border: 1px solid #222; overflow: hidden; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Animasi Lonceng Real-time */
         .animate-bell { display: inline-block; animation: ring 2s infinite; }
         @keyframes ring {
             0% { transform: rotate(0); }
@@ -123,8 +122,8 @@ for ($i = 6; $i >= 0; $i--) {
             <i class="bi bi-file-earmark-bar-graph-fill me-3"></i> Laporan
         </a>
         <hr class="border-secondary my-4">
-        <a href="../logout.php" class="nav-link text-danger">
-            <i class="bi bi-box-arrow-left me-3"></i> Logout
+        <a href="logout_admin.php" class="nav-link text-danger">
+        <i class="bi bi-box-arrow-left me-3"></i> Logout
         </a>
     </div>
 </div>
@@ -173,7 +172,7 @@ for ($i = 6; $i >= 0; $i--) {
                         <th class="ps-4">PELANGGAN</th>
                         <th>LAPANGAN</th>
                         <th class="text-center">BUKTI</th>
-                        <th class="text-center">STATUS</th>
+                        <th class="text-center">AKSI / STATUS</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -186,13 +185,29 @@ for ($i = 6; $i >= 0; $i--) {
                         <td><?= $row['nama_lapangan'] ?></td>
                         <td class="text-center">
                             <?php if(!empty($row['bukti_bayar'])): ?>
-                                <img src="../assets/images/<?= $row['bukti_bayar'] ?>" width="40" height="40" style="object-fit: cover;" class="rounded border border-secondary">
+                                <a href="../assets/images/<?= $row['bukti_bayar'] ?>" target="_blank">
+                                    <img src="../assets/images/<?= $row['bukti_bayar'] ?>" width="40" height="40" style="object-fit: cover;" class="rounded border border-secondary">
+                                </a>
                             <?php else: ?> <span class="text-muted small">No File</span> <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            <span class="badge rounded-pill <?= (strtolower($row['status']) == 'dikonfirmasi') ? 'bg-success' : 'bg-warning text-dark' ?> px-3 py-2 text-uppercase" style="font-size: 0.7rem;">
-                                <?= ucfirst($row['status']) ?>
-                            </span>
+                            <?php 
+                            // LOGIKA: CEK BUKTI BAYAR
+                            if (empty($row['bukti_bayar'])) : ?>
+                                <span class="text-warning small text-uppercase fw-bold">
+                                    <u>menunggu pembayaran</u>
+                                </span>
+                            <?php else: ?>
+                                <?php if(strtolower($row['status']) == 'dikonfirmasi') : ?>
+                                    <span class="badge rounded-pill bg-success px-3 py-2 text-uppercase" style="font-size: 0.7rem;">
+                                        DIKONFIRMASI
+                                    </span>
+                                <?php else: ?>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <a href="proses_konfirmasi.php?id=<?= $row['id_booking'] ?>" class="btn btn-info btn-sm rounded-pill px-3 fw-bold" style="font-size: 0.65rem;">KONFIRMASI</a>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endwhile; ?>
@@ -240,7 +255,6 @@ for ($i = 6; $i >= 0; $i--) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // 1. LOGIKA GRAFIK ASLIMU
     const ctx = document.getElementById('revenueChart').getContext('2d');
     const gradient = ctx.createLinearGradient(0, 0, 0, 200);
     gradient.addColorStop(0, 'rgba(0, 242, 255, 0.2)'); gradient.addColorStop(1, 'rgba(0, 242, 255, 0)');
@@ -263,34 +277,24 @@ for ($i = 6; $i >= 0; $i--) {
         }
     });
 
-    // 2. LOGIKA REAL-TIME (LONCENG)
     let currentPendingCount = <?= (int)$res_pending['jml'] ?>;
-    
     function checkNewOrders() {
         fetch('get_pending_count.php')
             .then(response => response.json())
             .then(data => {
                 if (parseInt(data.jml) > currentPendingCount) {
-                    // Tampilkan Toast Lonceng
                     const toast = new bootstrap.Toast(document.getElementById('bookingToast'));
                     toast.show();
-                    
-                    // Bunyikan Suara
                     document.getElementById('notifSound').play().catch(() => {});
-                    
-                    // Update Badge Sidebar
                     const badge = document.getElementById('badge-pending');
                     if(badge) {
                         badge.innerText = data.jml;
                         badge.style.display = 'inline-block';
                     }
-                    
                     currentPendingCount = parseInt(data.jml);
                 }
             });
     }
-
-    // Cek setiap 5 detik
     setInterval(checkNewOrders, 5000);
 </script>
 </body>

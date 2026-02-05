@@ -3,8 +3,8 @@ session_start();
 require 'config/database.php'; 
 
 if (isset($_SESSION['id_user'])) {
-    $redirect = ($_SESSION['role'] == 'admin') ? "admin/dashboard.php" : "user/dashboard.php";
-    header("Location: $redirect");
+    // REVISI: Tetap di dalam folder user karena login.php ini hanya untuk users
+    header("Location: user/dashboard.php");
     exit();
 }
 
@@ -22,11 +22,9 @@ if (isset($_POST['login'])) {
             $_SESSION['id_user'] = $row['id_user'];
             $_SESSION['nama']    = $row['nama']; 
             $_SESSION['role']    = $row['role'];
-            if ($row['role'] == 'admin') {
-                header("Location: admin/dashboard.php");
-            } else {
-                header("Location: user/dashboard.php");
-            }
+
+            // REVISI: Semua yang login dari sini dilempar ke dashboard user
+            header("Location: user/dashboard.php");
             exit();
         } else {
             $error = "Password salah!";
@@ -65,7 +63,6 @@ if (isset($_POST['login'])) {
             overflow: hidden;
         }
 
-        /* STYLE TULISAN TRINITY SPORT SESUAI REQUEST */
         .brand-trinity {
             font-family: 'Orbitron', sans-serif;
             font-weight: 800;
@@ -112,11 +109,6 @@ if (isset($_POST['login'])) {
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        @keyframes shimmer {
-            0% { left: -60%; }
-            100% { left: 150%; }
-        }
-
         .form-control { 
             background: rgba(255, 255, 255, 0.08) !important; 
             border: 1px solid rgba(255, 255, 255, 0.15) !important; 
@@ -145,18 +137,6 @@ if (isset($_POST['login'])) {
             margin-top: 10px;
             position: relative;
             overflow: hidden;
-        }
-
-        .btn-pink::after {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -60%;
-            width: 20%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.25);
-            transform: rotate(30deg);
-            animation: shimmer 3s infinite;
         }
 
         .btn-pink:hover { 
@@ -225,7 +205,7 @@ if (isset($_POST['login'])) {
     <form action="" method="POST" class="text-start">
         <div class="mb-3">
             <label class="small mb-1 text-white ms-1">Email Address</label>
-            <input type="email" name="email" class="form-control" placeholder="admin@email.com" required autocomplete="off">
+            <input type="email" name="email" class="form-control" placeholder="user@email.com" required autocomplete="off">
         </div>
         
         <div class="mb-4">
@@ -240,12 +220,10 @@ if (isset($_POST['login'])) {
         
         <div class="text-center mt-3">
             <p class="small mb-2" style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">Belum punya akun?</p>
-            <a href="register.php" class="btn btn-outline-regis">
-                BUAT AKUN BARU
-            </a>
+            <a href="register.php" class="btn btn-outline-regis">BUAT AKUN BARU</a>
         </div>
 
-        <a href="https://wa.me/6285694261056?text=Halo%20Admin,%20saya%20lupa%20password." target="_blank" class="forgot-link">
+        <a href="https://wa.me/6285694261056?text=Halo%20Admin" target="_blank" class="forgot-link">
             Lupa Password? Hubungi Admin
         </a>
     </form>
@@ -254,10 +232,8 @@ if (isset($_POST['login'])) {
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
     AOS.init({ duration: 1000, once: true });
-
     const togglePassword = document.querySelector('#togglePassword');
     const passwordInput = document.querySelector('#password');
-
     togglePassword.addEventListener('click', function () {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);
@@ -265,6 +241,5 @@ if (isset($_POST['login'])) {
         this.classList.toggle('bi-eye-slash');
     });
 </script>
-
 </body>
 </html>

@@ -2,23 +2,31 @@
 session_start();
 require '../config/database.php'; 
 
-// Pastikan user login & ID booking ada
-if (!isset($_SESSION['id_user']) || !isset($_GET['id'])) {
-    header("Location: index.php");
+// PROTEKSI 1: Harus Login & Role harus 'user'
+if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'user') {
+    header("Location: ../login.php");
     exit();
 }
 
-$id_booking = mysqli_real_escape_string($conn, $_GET['id']);
-$id_user = $_SESSION['id_user'];
+// PROTEKSI 2: Harus ada ID di URL
+if (!isset($_GET['id'])) {
+    header("Location: riwayat.php");
+    exit();
+}
 
-// Ambil data booking & nama lapangan
+$id_user = $_SESSION['id_user'];
+$id_booking = mysqli_real_escape_string($conn, $_GET['id']);
+
+// PROTEKSI 3: Pastikan booking ini BENAR-BENAR milik user yang sedang login
+// Biar user nggak bisa asal ganti ID di URL buat liat tagihan orang lain
 $query = mysqli_query($conn, "SELECT b.*, l.nama_lapangan 
                               FROM booking b 
                               JOIN lapangan l ON b.id_lapangan = l.id_lapangan 
                               WHERE b.id_booking = '$id_booking' AND b.id_user = '$id_user'");
+
 $data = mysqli_fetch_assoc($query);
 
-// Jika data tidak ditemukan
+// Jika data nggak ada (artinya ID ngawur atau punya orang lain)
 if (!$data) {
     header("Location: riwayat.php");
     exit();
@@ -50,6 +58,7 @@ include '../includes/header.php';
         transition: 0.3s;
         text-transform: uppercase;
         letter-spacing: 1px;
+        width: 100%;
     }
     .btn-upload-notif:hover {
         background: #ff2e7e;
@@ -71,7 +80,7 @@ include '../includes/header.php';
             <div class="card-bayar p-4">
                 <div class="text-center mb-4">
                     <span class="badge border border-pink text-pink p-2 px-3 rounded-pill" style="color: #e91e63;">
-                        ID: <?= $data['kode_booking']; ?>
+                        KODE: <?= $data['kode_booking']; ?>
                     </span>
                     <h5 class="text-white-50 mt-3 mb-1 small">Total Transfer:</h5>
                     <h1 class="text-white fw-bolder">Rp <?= number_format($data['total_harga'], 0, ',', '.'); ?></h1>
@@ -86,6 +95,7 @@ include '../includes/header.php';
                     <hr class="border-secondary opacity-25 my-3">
 
                     <p class="label-pink mb-2">KIRIM BUKTI PEMBAYARAN:</p>
+                    
                     <form action="proses_bukti.php" method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="id_booking" value="<?= $id_booking ?>">
                         <input type="hidden" name="kode_booking" value="<?= $data['kode_booking'] ?>">
@@ -94,7 +104,7 @@ include '../includes/header.php';
                             <input type="file" name="bukti_transfer" class="form-control form-control-dark" required accept="image/*">
                         </div>
                         
-                        <button type="submit" name="submit_bukti" class="btn-upload-notif w-100">
+                        <button type="submit" name="submit_bukti" class="btn-upload-notif">
                             <i class="bi bi-cloud-arrow-up-fill me-2"></i>UNGGAH & NOTIF WA
                         </button>
                     </form>

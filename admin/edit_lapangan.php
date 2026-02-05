@@ -3,8 +3,8 @@ session_start();
 require '../config/database.php';
 
 // 1. PROTEKSI ADMIN
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../index.php");
+if (!isset($_SESSION['id_admin']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login_admin.php");
     exit;
 }
 
@@ -21,8 +21,9 @@ $data = mysqli_fetch_assoc($query);
 // 3. PROSES UPDATE
 if (isset($_POST['update'])) {
     $nama = mysqli_real_escape_string($conn, $_POST['nama_lapangan']);
-    $harga = $_POST['harga_per_jam'];
+    $harga = (int)$_POST['harga_per_jam']; // Paksa jadi angka biar aman
     
+    $update_foto = ""; // Default kosong
     if ($_FILES['foto']['name'] != "") {
         $foto_nama = time() . "_" . $_FILES['foto']['name'];
         $tmp_name = $_FILES['foto']['tmp_name'];
@@ -30,18 +31,22 @@ if (isset($_POST['update'])) {
         
         if(move_uploaded_file($tmp_name, $folder_tujuan)) {
             $update_foto = ", foto = '$foto_nama'";
+            
+            // OPSIONAL: Hapus foto lama biar folder gak penuh
+            if (!empty($data['foto']) && file_exists("../assets/images/" . $data['foto'])) {
+                unlink("../assets/images/" . $data['foto']);
+            }
         } else {
-            $update_foto = "";
             echo "<script>alert('Gagal mengupload gambar!');</script>";
         }
-    } else {
-        $update_foto = "";
     }
 
     $sql = "UPDATE lapangan SET nama_lapangan = '$nama', harga_per_jam = '$harga' $update_foto WHERE id_lapangan = '$id'";
 
     if (mysqli_query($conn, $sql)) {
         echo "<script>alert('Data Berhasil Diperbarui!'); window.location='lapangan.php';</script>";
+    } else {
+        echo "<script>alert('Gagal Update Database: " . mysqli_error($conn) . "');</script>";
     }
 }
 ?>
@@ -131,8 +136,8 @@ if (isset($_POST['update'])) {
         
         <hr class="border-secondary my-4">
         
-        <a href="../logout.php" class="nav-link text-danger">
-            <i class="bi bi-box-arrow-left me-3"></i> <span>Logout</span>
+        <a href="logout_admin.php" class="nav-link text-danger">
+        <i class="bi bi-box-arrow-left me-3"></i> Logout
         </a>
     </div>
 </div>

@@ -1,19 +1,18 @@
 <?php
 session_start();
-require '../config/database.php';
+require '../config/database.php'; // Keluar satu folder ke config
 
-// 1. PERBAIKAN PROTEKSI: Arahkan ke luar folder jika belum login
-if (!isset($_SESSION['id_user'])) {
-    header("Location: ../login.php"); // Tambah ../ agar kembali ke root
+// PROTEKSI: Cek ID dan pastikan Role sesuai database
+if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'user') {
+    // Jika tidak sesuai, tendang ke login di luar folder user
+    header("Location: ../login.php"); 
     exit();
 }
 
 $id_user = $_SESSION['id_user'];
-// Ambil nama dari session yang benar (sesuaikan dengan login.php mu, biasanya 'nama')
-$nama_user = isset($_SESSION['nama']) ? $_SESSION['nama'] : 'Sobat Trinity';
+$nama_user = $_SESSION['nama'];
 
-/** * STATISTIK REAL-TIME
- */
+// Ambil statistik (Pastikan koneksi $conn aman)
 $stat_pending = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as jml FROM booking WHERE id_user = '$id_user' AND status = 'menunggu'"));
 $stat_proses = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as jml FROM booking WHERE id_user = '$id_user' AND status = 'menunggu_konfirmasi'"));
 

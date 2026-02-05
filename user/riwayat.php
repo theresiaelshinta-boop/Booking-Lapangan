@@ -1,20 +1,23 @@
 <?php 
 session_start();
 require '../config/database.php'; 
-include '../includes/header.php'; 
 
-if (!isset($_SESSION['id_user'])) {
+// Satpam: Cek login & role
+if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'user') {
     header("Location: ../login.php");
     exit;
 }
 
 $id_user = $_SESSION['id_user'];
 
+// Query ambil data booking milik user yang sedang login
 $query = mysqli_query($conn, "SELECT b.*, l.nama_lapangan, l.jenis 
                               FROM booking b
                               JOIN lapangan l ON b.id_lapangan = l.id_lapangan 
                               WHERE b.id_user = '$id_user' 
                               ORDER BY b.id_booking DESC");
+
+include '../includes/header.php'; 
 ?>
 
 <style>
@@ -50,12 +53,20 @@ $query = mysqli_query($conn, "SELECT b.*, l.nama_lapangan, l.jenis
     }
 
     .status-badge { padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 0.65rem; text-transform: uppercase; }
-    /* WARNA BARU DISINI */
     .status-blue { background: #007bff; color: white; box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
     .status-pending { background: #ffc107; color: black; box-shadow: 0 0 10px rgba(255, 193, 7, 0.3); }
-    .status-default { background: #e91e63; color: white; } /* Untuk status lainnya seperti Batal dll */
+    .status-success { background: #28a745; color: white; box-shadow: 0 0 10px rgba(40, 167, 69, 0.3); }
+    .status-default { background: #e91e63; color: white; } 
     
     .price-tag { font-size: 1.6rem; font-weight: 900; color: white; margin-top: 15px; }
+
+    .btn-upload-revisi {
+        background: #e91e63; color: white; border: none; padding: 8px 18px;
+        border-radius: 50px; font-weight: 800; font-size: 0.7rem;
+        text-transform: uppercase; transition: 0.3s; text-decoration: none;
+        display: inline-block; margin-top: 10px;
+    }
+    .btn-upload-revisi:hover { background: #fff; color: #e91e63; transform: scale(1.05); }
 </style>
 
 <div class="container riwayat-header">
@@ -64,7 +75,7 @@ $query = mysqli_query($conn, "SELECT b.*, l.nama_lapangan, l.jenis
             <h1 class="riwayat-title">RIWAYAT <span>BOOKING</span></h1>
             <p class="text-white-50">Cek status dan detail reservasi lapangan Anda.</p>
         </div>
-        <a href="../index.php" class="btn btn-outline-light rounded-pill px-4 fw-bold shadow-sm" style="text-decoration:none; transition: 0.3s;">KEMBALI</a>
+        <a href="dashboard.php" class="btn btn-outline-light rounded-pill px-4 fw-bold shadow-sm" style="text-decoration:none; transition: 0.3s;">KEMBALI</a>
     </div>
 
     <div class="row g-4 mt-2">
@@ -76,17 +87,24 @@ $query = mysqli_query($conn, "SELECT b.*, l.nama_lapangan, l.jenis
                 $jam_mulai_raw = $row['jam_mulai'];
                 $mulai = date('H:i', strtotime($jam_mulai_raw));
                 $selesai = date('H:i', strtotime($jam_mulai_raw . ' +1 hour'));
-                
                 $total = $row['total_harga'];
-                $status = strtolower($row['status']);
+                
+                // LOGIKA STATUS & BADGE
+                $status_db = strtolower($row['status']);
+                $bukti = $row['bukti_bayar']; 
 
-                // LOGIKA WARNA BADGE SESUAI REQUEST
-                if ($status == 'menunggu' || $status == 'menunggu konfirmasi') {
-                    $badge_class = 'status-pending';
-                } elseif ($status == 'dikonfirmasi' || $status == 'lunas') {
-                    $badge_class = 'status-blue'; // JADI BIRU
+                if (empty($bukti)) {
+                    $status_text = "Menunggu Pembayaran";
+                    $badge_class = "status-pending";
+                } elseif ($status_db == 'menunggu' || $status_db == 'menunggu_konfirmasi') {
+                    $status_text = "Sedang Diverifikasi";
+                    $badge_class = "status-pending";
+                } elseif ($status_db == 'dikonfirmasi' || $status_db == 'lunas') {
+                    $status_text = "Dikonfirmasi / Lunas";
+                    $badge_class = "status-success";
                 } else {
-                    $badge_class = 'status-default'; // TETAP PINK
+                    $status_text = ucfirst($status_db);
+                    $badge_class = "status-default";
                 }
             ?>
             <div class="col-md-6">
@@ -94,7 +112,7 @@ $query = mysqli_query($conn, "SELECT b.*, l.nama_lapangan, l.jenis
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="text-white-50 fw-bold small">#<?= $row['kode_booking']; ?></div>
                         <span class="status-badge <?= $badge_class; ?>">
-                            <?= $row['status']; ?>
+                            <?= $status_text; ?>
                         </span>
                     </div>
                     
@@ -111,16 +129,24 @@ $query = mysqli_query($conn, "SELECT b.*, l.nama_lapangan, l.jenis
                         </div>
                     </div>
                     
-                    <div class="price-tag">Rp <?= number_format($total, 0, ',', '.'); ?></div>
+                    <div class="d-flex justify-content-between align-items-end">
+                        <div class="price-tag">Rp <?= number_format($total, 0, ',', '.'); ?></div>
+                        
+                        <?php if (empty($bukti)) : ?>
+                            <a href="bayar.php?id=<?= $row['id_booking']; ?>" class="btn-upload-revisi">
+                                <i class="bi bi-upload me-1"></i> Bayar Sekarang
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
             <?php 
                 $delay += 0.1; 
             endwhile; 
-            ?>
-        <?php else: ?>
-            <div class="col-12 text-center py-5" style="animation: fadeInUp 0.8s forwards;">
+        else: ?>
+            <div class="col-12 text-center py-5">
                 <p class="text-white-50">Belum ada riwayat booking.</p>
+                <a href="../index.php#lapangan" class="btn-upload-revisi">Booking Sekarang</a>
             </div>
         <?php endif; ?>
     </div>
